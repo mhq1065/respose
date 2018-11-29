@@ -1,0 +1,6 @@
+from math import *
+print("intersting")
+c=float(input("请输入执教三角形的斜边："))
+a=float(input("请输入直角三角形的一个直角边"))
+b=sqrt(c**2-a**2)
+print("该梯形的面积是：",b)
