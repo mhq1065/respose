@@ -1,33 +1,32 @@
-Python 3.7.0 (v3.7.0:1bf9cc5093, Jun 27 2018, 04:59:51) [MSC v.1914 64 bit (AMD64)] on win32
-Type "copyright", "credits" or "license()" for more information.
->>> # coding:utf-8
-import requests
-from bs4 import BeautifulSoup
-test_url = 'http://movie.douban.com/top250/'
-def download_page(url):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36'
-    }
-    data = requests.get(url,headers=headers).content
-    return data
-movie_name_list = []
-def parse_html(html):
-    soup = BeautifulSoup(html)
-    movie_list_soup = soup.find('ol', attrs={'class': 'grid_view'})
-    if movie_list_soup != None:
-        for movie_li in movie_list_soup.find_all('li'):
-            detail = movie_li.find('div', attrs={'class': 'hd'})
-            movie_name = detail.find('span', attrs={'class': 'title'}).getText()
-            movie_name_list.append(movie_name)
-        next_page = soup.find('span', attrs={'class': 'next'}).find('a')
-        if next_page:
-            parse_html(download_page(test_url + next_page['href']))
-        return movie_name_list
-def main():
-    handle = parse_html(download_page(test_url))
-    if handle != None:
-        handle = list(handle)
-        for ele in handle:
-            print ele
-if __name__ == '__main__':
-    main()
+import socket
+
+# 创建一个socket:
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# 建立连接:
+s.connect(('www.sina.com.cn', 80))
+
+# 发送数据:
+s.send(b'GET / HTTP/1.1\r\nHost: www.sina.com.cn\r\nConnection: close\r\n\r\n')
+
+# 接收数据:
+buffer = []
+while True:
+    # 每次最多接收1k字节:
+    d = s.recv(1024)
+    if d:
+        buffer.append(d)
+    else:
+        break
+
+data = b''.join(buffer)
+
+# 关闭连接:
+s.close()
+
+header, html = data.split(b'\r\n\r\n', 1)
+print(header.decode('utf-8'))
+
+# 把接收的数据写入文件:
+with open('sina.html', 'wb') as f:
+f.write(html)
